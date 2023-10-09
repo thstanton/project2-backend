@@ -3,9 +3,10 @@ const Schema = mongoose.Schema
 
 const agencySchema = new Schema({
     name: String,
-    contact: String
+    email: String
 }, {
     timestamps: true
 })
 
-module.exports = mongoose.model('Agency', agencySchema)
+const Agency = mongoose.model('Agency', agencySchema)
+module.exports = Agency

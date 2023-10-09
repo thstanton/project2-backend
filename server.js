@@ -22,3 +22,11 @@ app.get('/', function (req, res) {
   })
 
 app.get('/gigs', gigs.getAll)
+
+app.post('/gigs/new', gigs.new)
+
+app.get('/agencies/names', agencies.names)
+
+app.post('/agencies/new', agencies.new)
+
+app.post('venues/new', venues.new)

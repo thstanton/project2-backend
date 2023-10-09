@@ -2,23 +2,25 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const gigSchema = new Schema({
-    type: String,
+    gigType: String,
     date: Date,
-    startTime: Date,
-    endTime: Date,
+    startTime: String,
+    endTime: String,
+    agencyName: String,
     agencyId: Schema.Types.ObjectId,
+    venueName: String,
     venueId: Schema.Types.ObjectId,
     lineUp: String,
-    sets: [{
+    gigSets: [{
         length: Number,
-        description: String
+        desc: String
     }],
-    details: String,
+    notes: String,
     fee: Number,
-    genre: String,
+    genres: [],
     requests: [{
-        song: String,
-        description: String
+        name: String,
+        desc: String
     }],
     status: String
 }, {
