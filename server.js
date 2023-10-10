@@ -17,16 +17,15 @@ const agencies = require('./controllers/agenciesCtrl')
 const users = require('./controllers/usersCtrl')
 
 // ! Endpoints
-app.get('/', function (req, res) {
-    res.send('Hello World')
-  })
-
+// ? Gigs
 app.get('/gigs', gigs.getAll)
-
+app.get('/gigs/:id', gigs.getOne)
 app.post('/gigs/new', gigs.new)
 
+// ? Agencies
 app.get('/agencies/names', agencies.names)
-
 app.post('/agencies/new', agencies.new)
 
-app.post('venues/new', venues.new)
+// ? Venues
+app.get('/venues/names', venues.names)
+app.post('/venues/new', venues.new)
