@@ -6,9 +6,55 @@ const Venue = require('../config/models/venues')
 async function getAll(req, res) {
     try { 
         const allGigs = await Gig.find()
-        return res.json(allGigs)
+        return res.status(200).json(allGigs)
     } catch (err) {
         console.error(err)
+        return res.status(400).json({ error: 'Something went wrong' })
+    }
+}
+
+// Get gigs filtered by venue
+async function filterVenue(req, res) {
+    try {
+        const venueId = req.params.venueId
+        const gigs = await Gig
+            .find( { venueId: venueId } )
+            .sort('-date')
+            .lean()
+        return res.status(200).json(gigs)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json({ error: 'Something went wrong' })
+    }
+}
+
+// Get gigs by status
+async function filterStatus(req, res) {
+    try {
+        const status = req.params.status
+        const gigs = await Gig
+            .find( { status: status } )
+            .sort('-date')
+            .lean()
+        return res.status(200).json(gigs)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json({ error: 'Something went wrong' })
+    }
+}
+
+// Get gigs filtered by agency
+async function filterAgency(req, res) {
+    try {
+        const agency = req.params.agencyId 
+        const gigs = await Gig
+            .find( { agencyId: agency } )
+            .sort('-date')
+            .lean()
+        return res.status(200).json(gigs)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json({ error: 'Something went wrong' })
     }
 }
 
@@ -37,7 +83,7 @@ async function createNew(req, res) {
         newGig.venueId = venueId
         // Save
         let save = await newGig.save()
-        return res.status(201).json(save)
+        return res.status(201).json({ id: newGig._id })
     } catch (error) {
         console.error(error.message)
         return res.status(400).json({ message: 'Something went wrong'})
@@ -45,7 +91,10 @@ async function createNew(req, res) {
 }
 
 module.exports = {
-    getAll: getAll,
+    status: filterStatus,
+    agency: filterAgency,
+    venue: filterVenue,
     getOne: getOne,
-    new: createNew
+    new: createNew,
+    getAll: getAll,
 }

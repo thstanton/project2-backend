@@ -19,13 +19,20 @@ const users = require('./controllers/usersCtrl')
 // ! Endpoints
 // ? Gigs
 app.get('/gigs', gigs.getAll)
+app.get('/gigs/status/:status', gigs.status)
+app.get('/gigs/agency/:agencyId', gigs.agency)
+app.get('/gigs/venue/:venueId', gigs.venue)
 app.get('/gigs/:id', gigs.getOne)
 app.post('/gigs/new', gigs.new)
 
 // ? Agencies
+app.get('/agencies', agencies.getAll)
 app.get('/agencies/names', agencies.names)
+app.get('/agencies/:id', agencies.getOne)
 app.post('/agencies/new', agencies.new)
 
 // ? Venues
+app.get('/venues', venues.getAll)
 app.get('/venues/names', venues.names)
+app.get('/venues/:id', venues.getOne)
 app.post('/venues/new', venues.new)

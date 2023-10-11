@@ -1,5 +1,19 @@
 const Agency = require('../config/models/agencies')
 
+// Get all
+async function getAll(req, res) {
+    try {
+        const agencies = await Agency
+            .find({}, { _id: 1, name: 1 })
+            .sort('name')
+            .lean()
+        return res.status(200).json(agencies)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json( { error: 'Something went wrong' })
+    }
+}
+
 // Get Agency Names
 async function getNames(req, res) {
     try {
@@ -8,6 +22,19 @@ async function getNames(req, res) {
         return res.json(namesArr)
     } catch (err) {
         console.error(err)
+    }
+}
+
+// Get one
+async function getOne(req, res) {
+    try {
+        const id = req.params.id
+        const agency = await Agency.findById(id).lean()
+        console.log(agency)
+        return res.status(200).json(agency)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json({ message: 'Something has gone wrong' })
     }
 }
 
@@ -37,5 +64,7 @@ function agencyInitials(name) {
 
 module.exports = {
     new: createNew,
-    names: getNames
+    names: getNames,
+    getOne: getOne,
+    getAll: getAll,
 }
