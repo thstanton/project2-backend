@@ -30,7 +30,6 @@ async function getOne(req, res) {
     try {
         const id = req.params.id
         const agency = await Agency.findById(id).lean()
-        console.log(agency)
         return res.status(200).json(agency)
     } catch (err) {
         console.error(err)
@@ -62,9 +61,38 @@ function agencyInitials(name) {
         return initialsArr.join('')
     }
 
+// Update Agency
+async function updateAgency(req, res) {
+    try {
+        const id = req.params.id
+        const body = req.body
+        const updated = await Agency.findByIdAndUpdate(id, body)
+        updated.initials = agencyInitials(body.name)
+        await updated.save()
+        return res.status(201).json(updated)
+    } catch (error) {
+        console.error(error.message)
+        return res.status(400).json({ message: 'Something went wrong'})
+    }
+}
+
+// Delete Agency
+async function deleteAgency(req, res) {
+    try {
+        const id = req.params.id
+        const agency = await Agency.findByIdAndDelete(id)
+        return res.status(200).json({ message: 'The agency was deleted' })
+    } catch (err) {
+        console.error(err)
+        return res.status(404).json({ message: 'The agency was not deleted' })
+    }
+}
+
 module.exports = {
     new: createNew,
     names: getNames,
     getOne: getOne,
     getAll: getAll,
+    update: updateAgency,
+    delete: deleteAgency
 }

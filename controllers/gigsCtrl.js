@@ -1,6 +1,7 @@
 const Gig = require('../config/models/gigs')
 const Agency = require('../config/models/agencies')
 const Venue = require('../config/models/venues')
+const { default: mongoose } = require('mongoose')
 
 // Get all gigs
 async function getAll(req, res) {
@@ -58,6 +59,26 @@ async function filterAgency(req, res) {
     }
 }
 
+// Get stats by agency
+async function getAgencyStats(req, res) {
+    try {
+        const id = req.params.agencyId
+        const objectId = new mongoose.Types.ObjectId(id)
+        const stats = await Gig.aggregate([
+            { $match: { agencyId: objectId } },
+            { $group: { 
+                _id: null, 
+                totalEarnings: { $sum: "$fee" },
+                gigCount: { $sum: 1 }
+            }},
+        ])
+        return res.status(200).json(stats)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).json({ error: 'Something went wrong' })
+    }
+}
+
 // Get one gig
 async function getOne(req, res) {
     try {
@@ -90,11 +111,39 @@ async function createNew(req, res) {
     }
 }
 
+// Delete gig
+async function deleteGig(req, res) {
+    try {
+        const id = req.params.id
+        const gig = await Gig.findByIdAndDelete(id)
+        return res.status(200).json({ message: 'The gig was deleted' })
+    } catch (err) {
+        console.error(err)
+        return res.status(404).json({ message: 'The gig was not deleted' })
+    }
+}
+
+// Update Gig
+async function updateGig(req, res) {
+    try {
+        const id = req.params.id
+        const body = req.body
+        const updatedGig = await Gig.findByIdAndUpdate(id, body)
+        return res.status(201).json(updatedGig)
+    } catch (error) {
+        console.error(error.message)
+        return res.status(400).json({ message: 'Something went wrong'})
+    }
+}
+
 module.exports = {
     status: filterStatus,
     agency: filterAgency,
     venue: filterVenue,
+    agencystats: getAgencyStats,
     getOne: getOne,
     new: createNew,
     getAll: getAll,
+    delete: deleteGig,
+    update: updateGig
 }
