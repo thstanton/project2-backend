@@ -136,6 +136,26 @@ async function updateGig(req, res) {
     }
 }
 
+// Agency and Venue Names for New Gig Form
+async function populateGigForm(req, res) {
+    try {
+        const agencyNames = await Agency.find({}, { _id: 0, name: 1 }).lean()
+        const agencyNamesArr = agencyNames.map(agency => agency.name)
+        const venueNames = await Venue.find({}, { _id: 0, name: 1 }).lean()
+        const venueNamesArr = venueNames.map(venue => venue.name)
+        const data = { venues: venueNamesArr, agencies: agencyNamesArr }
+        if (req.params.id) {
+            const id = req.params.id
+            const gigData = await Gig.findById(id).lean()
+            data.gig = gigData
+        }
+        return res.status(201).json(data)
+    } catch (error) {
+        console.error(error.message)
+        return res.status(400).json({ message: 'Something went wrong'})
+    }
+}
+
 module.exports = {
     status: filterStatus,
     agency: filterAgency,
@@ -145,5 +165,6 @@ module.exports = {
     new: createNew,
     getAll: getAll,
     delete: deleteGig,
-    update: updateGig
+    update: updateGig,
+    populateForm: populateGigForm
 }

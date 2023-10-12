@@ -14,17 +14,6 @@ async function getAll(req, res) {
     }
 }
 
-// Get Agency Names
-async function getNames(req, res) {
-    try {
-        const names = await Agency.find({}, { _id: 0, name: 1 }).lean()
-        const namesArr = names.map(agency => agency.name)
-        return res.json(namesArr)
-    } catch (err) {
-        console.error(err)
-    }
-}
-
 // Get one
 async function getOne(req, res) {
     try {
@@ -49,7 +38,7 @@ async function createNew(req, res) {
         let save = await newAgency.save()
         return res.status(201).json(save)
     } catch (err) {
-        console.error(error.message)
+        console.error(err.message)
         return res.status(400).json({ error: 'Something went wrong'})
     }
 }
@@ -90,7 +79,6 @@ async function deleteAgency(req, res) {
 
 module.exports = {
     new: createNew,
-    names: getNames,
     getOne: getOne,
     getAll: getAll,
     update: updateAgency,

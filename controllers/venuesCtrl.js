@@ -42,20 +42,35 @@ async function getOne(req, res) {
     }
 }
 
-// Get names
-async function getNames(req, res) {
+// Update Venue
+async function updateVenue(req, res) {
     try {
-        const names = await Venue.find({}, { _id: 0, name: 1 }).lean()
-        const namesArr = names.map(venue => venue.name)
-        return res.json(namesArr)
+        const id = req.params.id
+        const body = req.body
+        const updated = await Venue.findByIdAndUpdate(id, body)
+        return res.status(201).json(updated)
+    } catch (error) {
+        console.error(error)
+        return res.status(400).json({ message: 'Something went wrong'})
+    }
+}
+
+// Delete Venue
+async function deleteVenue(req, res) {
+    try {
+        const id = req.params.id
+        const agency = await Venue.findByIdAndDelete(id)
+        return res.status(200).json({ message: 'The venue was deleted' })
     } catch (err) {
         console.error(err)
+        return res.status(404).json({ message: 'The venue was not deleted' })
     }
 }
 
 module.exports = {
     new: createNew,
-    names: getNames,
     getOne: getOne,
-    getAll: getAll
+    getAll: getAll,
+    delete: deleteVenue,
+    update: updateVenue
 }

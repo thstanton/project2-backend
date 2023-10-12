@@ -19,6 +19,8 @@ const users = require('./controllers/usersCtrl')
 // ! Endpoints
 // ? Gigs
 app.get('/gigs', gigs.getAll)
+app.get('/gigs/populate-form', gigs.populateForm)
+app.get('/gigs/populate-form/:id', gigs.populateForm)
 app.get('/gigs/status/:status', gigs.status)
 app.get('/gigs/agency/:agencyId', gigs.agency)
 app.get('/gigs/stats/agencies/:agencyId', gigs.agencystats)
@@ -31,7 +33,6 @@ app.delete('/gigs/delete/:id', gigs.delete)
 
 // ? Agencies
 app.get('/agencies', agencies.getAll)
-app.get('/agencies/names', agencies.names)
 app.get('/agencies/:id', agencies.getOne)
 app.post('/agencies/new', agencies.new)
 app.put('/agencies/update/:id', agencies.update)
@@ -39,6 +40,7 @@ app.delete('/agencies/delete/:id', agencies.delete)
 
 // ? Venues
 app.get('/venues', venues.getAll)
-app.get('/venues/names', venues.names)
 app.get('/venues/:id', venues.getOne)
 app.post('/venues/new', venues.new)
+app.put('/venues/update/:id', venues.update)
+app.delete('/venues/delete/:id', venues.delete)
