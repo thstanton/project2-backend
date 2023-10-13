@@ -6,9 +6,9 @@ require('./config/database')
 // ! Initialise express
 const express = require('express')
 const app = express()
-app.listen(4000)
-app.use(cors())
 app.use(bodyParser.json())
+app.use(cors())
+app.listen(4000)
 
 // ! Import Controllers
 const gigs = require('./controllers/gigsCtrl')
@@ -19,6 +19,7 @@ const users = require('./controllers/usersCtrl')
 // ! Endpoints
 // ? Gigs
 app.get('/gigs', gigs.getAll)
+app.get('/gigs/upcoming', gigs.upcoming)
 app.get('/gigs/populate-form', gigs.populateForm)
 app.get('/gigs/populate-form/:id', gigs.populateForm)
 app.get('/gigs/status/:status', gigs.status)
@@ -40,7 +41,10 @@ app.delete('/agencies/delete/:id', agencies.delete)
 
 // ? Venues
 app.get('/venues', venues.getAll)
-app.get('/venues/:id', venues.getOne)
 app.post('/venues/new', venues.new)
 app.put('/venues/update/:id', venues.update)
 app.delete('/venues/delete/:id', venues.delete)
+app.get('/venues/:id', venues.getOne)
+
+// ? User
+app.post('/users', users.controller)

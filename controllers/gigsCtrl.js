@@ -2,11 +2,12 @@ const Gig = require('../config/models/gigs')
 const Agency = require('../config/models/agencies')
 const Venue = require('../config/models/venues')
 const { default: mongoose } = require('mongoose')
+const moment = require('moment')
 
 // Get all gigs
 async function getAll(req, res) {
     try { 
-        const allGigs = await Gig.find()
+        const allGigs = await Gig.find({}).lean()
         return res.status(200).json(allGigs)
     } catch (err) {
         console.error(err)
@@ -84,8 +85,10 @@ async function getOne(req, res) {
     try {
         const id = req.params.id
         const gig = await Gig.findById(id).lean()
-        console.log(gig)
-        return res.status(200).json(gig)
+        const agency = await Agency.findOne({ _id: gig.agencyId }).lean()
+        const venue = await Venue.findOne({ _id: gig.venueId }).lean()
+        const data = { gig: gig, agency: agency, venue: venue }
+        return res.status(200).json(data)
     } catch (err) {
         console.error(err)
         return res.status(400).json({ message: 'Something has gone wrong' })
@@ -156,6 +159,21 @@ async function populateGigForm(req, res) {
     }
 }
 
+//Upcoming Gigs
+async function getUpcoming(req, res) {
+    try {
+        // const test = await Gig.find({ date: new Date('20 Oct 23')})
+        const today = new Date()
+        // const data = await Gig.find({ date: {$gte:today} })
+        const data = await Gig.aggregate([
+            { $match: { date: { $gte: today }}}
+        ])
+        return res.status(200).json(data)
+    } catch (error) {
+        return res.status(400).json({ message: 'Something went wrong'})
+    }
+}
+
 module.exports = {
     status: filterStatus,
     agency: filterAgency,
@@ -166,5 +184,6 @@ module.exports = {
     getAll: getAll,
     delete: deleteGig,
     update: updateGig,
-    populateForm: populateGigForm
+    populateForm: populateGigForm,
+    upcoming: getUpcoming
 }

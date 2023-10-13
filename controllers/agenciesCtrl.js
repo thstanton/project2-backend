@@ -1,4 +1,6 @@
 const Agency = require('../config/models/agencies')
+const Gig = require('../config/models/gigs')
+const { default: mongoose } = require('mongoose')
 
 // Get all
 async function getAll(req, res) {
@@ -18,8 +20,32 @@ async function getAll(req, res) {
 async function getOne(req, res) {
     try {
         const id = req.params.id
+        const objectId = new mongoose.Types.ObjectId(id)
         const agency = await Agency.findById(id).lean()
-        return res.status(200).json(agency)
+        const gigs = await Gig
+            .find( { agencyId: id } )
+            .sort('-date')
+            .lean()
+        const stats = await Gig.aggregate([
+            { $match: { agencyId: objectId } },
+            { $group: { 
+                _id: null, 
+                totalEarnings: { $sum: "$fee" },
+                gigCount: { $sum: 1 }
+            }},
+        ])
+        if (stats.length === 0) {
+            stats.push({
+                gigCount: 0,
+                totalEarnings: 0
+            })
+        }
+        const data = {
+            gigs: gigs,
+            agency: agency,
+            stats: stats
+        }
+        return res.status(200).json(data)
     } catch (err) {
         console.error(err)
         return res.status(400).json({ message: 'Something has gone wrong' })

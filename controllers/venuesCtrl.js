@@ -1,4 +1,6 @@
 const Venue = require('../config/models/venues')
+const Gig = require('../config/models/gigs')
+const { default: mongoose } = require('mongoose')
 
 // Create new
 async function createNew(req, res) {
@@ -34,8 +36,12 @@ async function getOne(req, res) {
     try {
         const id = req.params.id
         const venue = await Venue.findById(id).lean()
-        console.log(venue)
-        return res.status(200).json(venue)
+        const gigs = await Gig
+            .find( { venueId: id } )
+            .sort('-date')
+            .lean()
+        const data = { venue: venue, gigs: gigs }
+        return res.status(200).json(data)
     } catch (err) {
         console.error(err)
         return res.status(400).json({ message: 'Something has gone wrong' })
