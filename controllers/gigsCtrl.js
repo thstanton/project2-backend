@@ -2,12 +2,13 @@ const Gig = require('../config/models/gigs')
 const Agency = require('../config/models/agencies')
 const Venue = require('../config/models/venues')
 const { default: mongoose } = require('mongoose')
-const moment = require('moment')
 
 // Get all gigs
 async function getAll(req, res) {
     try { 
-        const allGigs = await Gig.find({}).lean()
+        const allGigs = await Gig.find({})
+        .sort('-date')
+        .lean()
         return res.status(200).json(allGigs)
     } catch (err) {
         console.error(err)
@@ -64,15 +65,59 @@ async function filterAgency(req, res) {
 async function getAgencyStats(req, res) {
     try {
         const id = req.params.agencyId
-        const objectId = new mongoose.Types.ObjectId(id)
-        const stats = await Gig.aggregate([
-            { $match: { agencyId: objectId } },
-            { $group: { 
-                _id: null, 
-                totalEarnings: { $sum: "$fee" },
-                gigCount: { $sum: 1 }
-            }},
-        ])
+        let stats
+        if (id) {
+            const objectId = new mongoose.Types.ObjectId(id)
+            stats = await Gig.aggregate([
+                { $match: { agencyId: objectId } },
+                { $group: { 
+                    _id: null, 
+                    totalEarnings: { $sum: "$fee" },
+                    gigCount: { $sum: 1 }
+                }}
+            ])             
+        } else {
+            // Get aggregate agency data
+            const data = await Gig.aggregate([
+                { $group: { 
+                    _id: "$agencyId", 
+                    totalEarnings: { $sum: "$fee" },
+                    gigCount: { $sum: 1 }
+                }}
+            ])
+            // Associate Agency name with Id
+            const agencyNames = await Agency.find({}, { name: 1 }).lean()
+            data.forEach((agency) => {
+                for (item of agencyNames) {
+                    console.log(item._id.toString())
+                    if (item._id.toString() === agency._id.toString()) agency.name = item.name
+                }
+            })
+
+            // stats = { gigData, agencyNamesArr }
+
+            // Format data for ChartJS
+            stats = {
+                labels: data.map(agency => agency.name),
+                datasets: [{
+                    label: 'Earnings',
+                    data: data.map(agency => agency.totalEarnings),
+                    backgroundColor: [
+                        '#03A9F4',
+                        '#E1F5FE',
+                        '#B3E5FC',
+                        '#81D4FA',
+                        '#4FC3F7',
+                        '#29B6F6',
+                        '#039BE5',
+                        '#0288D1',
+                        '#0277BD',
+                        '#01579B'
+                    ],
+                    hoverOffset: 4
+                }]
+            }
+        }
         return res.status(200).json(stats)
     } catch (err) {
         console.error(err)
@@ -162,11 +207,34 @@ async function populateGigForm(req, res) {
 //Upcoming Gigs
 async function getUpcoming(req, res) {
     try {
-        // const test = await Gig.find({ date: new Date('20 Oct 23')})
+        // Establish dates
+        const oneDay = ( 1000 * 60 * 60 * 24 )
         const today = new Date()
-        // const data = await Gig.find({ date: {$gte:today} })
+        const thisWeek = new Date(today.valueOf() + (7 * oneDay))
+        const nextWeek = new Date(today.valueOf() + (14 * oneDay))
+        const month = new Date(today.valueOf() + (30 * oneDay))
+        const year = new Date(today.valueOf() + (365 * oneDay))
+        const newYear = new Date(today.valueOf() + (80 * oneDay))
+        console.log(today)
+        console.log(thisWeek);
+        console.log(nextWeek);
+        console.log(month);
+        console.log(year);
+
+        // Get gigs gte to today, then put them in buckets
         const data = await Gig.aggregate([
-            { $match: { date: { $gte: today }}}
+            { $match: { date: { $gte: today }}},
+            { $bucket: {
+                groupBy: "$date",
+                boundaries: [today, thisWeek, nextWeek, month, newYear, year],
+                default: "Other",
+                output: {
+                    gigs: {
+                        $push: "$$ROOT"
+                    },
+                    count: { $sum: 1 }
+                }
+            }}
         ])
         return res.status(200).json(data)
     } catch (error) {

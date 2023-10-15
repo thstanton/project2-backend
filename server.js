@@ -24,6 +24,7 @@ app.get('/gigs/populate-form', gigs.populateForm)
 app.get('/gigs/populate-form/:id', gigs.populateForm)
 app.get('/gigs/status/:status', gigs.status)
 app.get('/gigs/agency/:agencyId', gigs.agency)
+app.get('/gigs/stats/agencies', gigs.agencystats)
 app.get('/gigs/stats/agencies/:agencyId', gigs.agencystats)
 app.get('/gigs/venue/:venueId', gigs.venue)
 app.get('/gigs/:id', gigs.getOne)
@@ -42,9 +43,11 @@ app.delete('/agencies/delete/:id', agencies.delete)
 // ? Venues
 app.get('/venues', venues.getAll)
 app.post('/venues/new', venues.new)
+app.get('/venues/locations', venues.locations)
 app.put('/venues/update/:id', venues.update)
 app.delete('/venues/delete/:id', venues.delete)
 app.get('/venues/:id', venues.getOne)
+
 
 // ? User
 app.post('/users', users.controller)
