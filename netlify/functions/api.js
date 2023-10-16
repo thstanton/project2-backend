@@ -5,11 +5,12 @@ import 'dotenv/config'
 import bodyParser from "body-parser"
 
 const api = express()
+const router = Router()
+
 api.use(cors())
 api.use(bodyParser.json())
+api.use("/api/", router)
 
-
-const router = Router()
 router.get("/hello", (req, res) => res.send("Hello World!"))
 
 // ! Import Controllers
@@ -51,7 +52,5 @@ router.get('/venues/:id', venues.getOne)
 
 // ? User
 router.post('/users', users.controller)
-
-api.use("/api/", router)
 
 export const handler = serverless(api)
