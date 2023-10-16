@@ -1,11 +1,17 @@
 // ! Import node modules
+import serverless from 'serverless-http'
+import express, { Router } from "express"
 const cors = require('cors')
 const bodyParser = require('body-parser')
 require('./config/database')
-import { handler } from './netlify/functions/api'
+
+const api = express()
+const app = Router()
+
+export const handler = serverless(api)
 
 // ! Initialise express
-const app = handler
+api.use("/api/", app)
 api.use(bodyParser.json())
 api.use(cors())
 
