@@ -1,8 +1,8 @@
 // ! Import node modules
 const cors = require('cors')
 const bodyParser = require('body-parser')
-require('./config/database')
 const serverless = require('serverless-http')
+require('./config/database')
 
 // ! Initialise express
 const express = require('express')
@@ -50,7 +50,6 @@ app.get('/venues/locations', venues.locations)
 app.put('/venues/update/:id', venues.update)
 app.delete('/venues/delete/:id', venues.delete)
 app.get('/venues/:id', venues.getOne)
-
 
 // ? User
 app.post('/users', users.controller)
