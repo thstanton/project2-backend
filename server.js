@@ -12,10 +12,10 @@ api.use(cors())
 api.listen(4000)
 
 // ! Import Controllers
-const gigs = require('./controllers/gigsCtrl')
-const venues = require('./controllers/venuesCtrl')
-const agencies = require('./controllers/agenciesCtrl')
-const users = require('./controllers/usersCtrl')
+import { gigs } from "../../controllers/gigsCtrl"
+import { venues } from "../../controllers/venuesCtrl"
+import { agencies } from "../../controllers/agenciesCtrl"
+import { users } from "../../controllers/usersCtrl"
 
 // ! Endpoints
 // ? Gigs

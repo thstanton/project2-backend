@@ -3,6 +3,7 @@ import serverless from "serverless-http"
 import cors from "cors"
 import 'dotenv/config'
 import bodyParser from "body-parser"
+import '../../config/database'
 
 const api = express()
 const router = Router()
