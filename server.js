@@ -2,13 +2,10 @@
 const cors = require('cors')
 const bodyParser = require('body-parser')
 require('./config/database')
-import serverless from 'serverless-http'
-import express, { Router } from "express"
+import { handler } from './netlify/functions/api'
 
 // ! Initialise express
-const api = express()
-const app = Router()
-api.use("/api/", app)
+const app = handler
 api.use(bodyParser.json())
 api.use(cors())
 
@@ -56,4 +53,3 @@ app.post('/users', users.controller)
 
 app.get("/hello", (req, res) => res.send("Hello World!"))
 
-export const handler = serverless(api)
