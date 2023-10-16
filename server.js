@@ -2,13 +2,15 @@
 const cors = require('cors')
 const bodyParser = require('body-parser')
 require('./config/database')
+import serverless from 'serverless-http'
+import express, { Router } from "express"
 
 // ! Initialise express
-const express = require('express')
-const app = express()
-app.use(bodyParser.json())
-app.use(cors())
-app.listen(4000)
+const api = express()
+const app = Router()
+api.use("/api/", app)
+api.use(bodyParser.json())
+api.use(cors())
 
 // ! Import Controllers
 const gigs = require('./controllers/gigsCtrl')
@@ -51,3 +53,7 @@ app.get('/venues/:id', venues.getOne)
 
 // ? User
 app.post('/users', users.controller)
+
+app.get("/hello", (req, res) => res.send("Hello World!"))
+
+export const handler = serverless(api)
