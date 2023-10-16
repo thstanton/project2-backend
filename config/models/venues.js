@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from "mongoose"
 const Schema = mongoose.Schema
 
 const venueSchema = new Schema({
@@ -9,5 +9,4 @@ const venueSchema = new Schema({
     timestamps: true
 })
 
-const Venue = mongoose.model('Venue', venueSchema)
-module.exports = Venue
+export const Venue = mongoose.model('Venue', venueSchema)

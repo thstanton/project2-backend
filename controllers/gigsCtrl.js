@@ -1,7 +1,7 @@
-const Gig = require('../config/models/gigs')
-const Agency = require('../config/models/agencies')
-const Venue = require('../config/models/venues')
-const { default: mongoose } = require('mongoose')
+import { Gig } from '../config/models/gigs'
+import { Agency } from '../config/models/agencies'
+import { Venue } from '../config/models/venues'
+import mongoose from 'mongoose'
 
 // Get all gigs
 async function getAll(req, res) {
@@ -242,7 +242,7 @@ async function getUpcoming(req, res) {
     }
 }
 
-module.exports = {
+export const gigs = {
     status: filterStatus,
     agency: filterAgency,
     venue: filterVenue,

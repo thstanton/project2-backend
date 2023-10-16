@@ -1,4 +1,4 @@
-const User = require('../config/models/users')
+import { User } from '../config/models/users'
 
 // ? User
 async function userController(req, res) {
@@ -29,6 +29,6 @@ async function userController(req, res) {
     }
 }
 
-module.exports = {
+export const users = {
     controller: userController
 }

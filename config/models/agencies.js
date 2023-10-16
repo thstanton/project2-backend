@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from "mongoose"
 const Schema = mongoose.Schema
 
 const agencySchema = new Schema({
@@ -9,5 +9,4 @@ const agencySchema = new Schema({
     timestamps: true
 })
 
-const Agency = mongoose.model('Agency', agencySchema)
-module.exports = Agency
+export const Agency = mongoose.model('Agency', agencySchema)

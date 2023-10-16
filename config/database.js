@@ -1,6 +1,6 @@
 // ! Import Modules
-const mongoose = require('mongoose');
-require('dotenv').config()
+import mongoose from 'mongoose'
+import 'dotenv/config'
 
 // ! Connect and Verify
 mongoose.connect(process.env.DATABASE_URL)

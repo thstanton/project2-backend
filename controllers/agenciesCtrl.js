@@ -1,6 +1,6 @@
-const Agency = require('../config/models/agencies')
-const Gig = require('../config/models/gigs')
-const { default: mongoose } = require('mongoose')
+import { Agency } from '../config/models/agencies'
+import { Gig } from '../config/models/gigs'
+import mongoose from 'mongoose'
 
 // Get all
 async function getAll(req, res) {
@@ -103,7 +103,7 @@ async function deleteAgency(req, res) {
     }
 }
 
-module.exports = {
+export const agencies = {
     new: createNew,
     getOne: getOne,
     getAll: getAll,

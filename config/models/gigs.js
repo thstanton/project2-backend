@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from "mongoose"
 const Schema = mongoose.Schema
 
 const gigSchema = new Schema({
@@ -27,5 +27,4 @@ const gigSchema = new Schema({
     timestamps: true
 })
 
-const Gig = mongoose.model('Gig', gigSchema)
-module.exports = Gig
+export const Gig = mongoose.model('Gig', gigSchema)

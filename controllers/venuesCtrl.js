@@ -1,6 +1,6 @@
-const Venue = require('../config/models/venues')
-const Gig = require('../config/models/gigs')
-const { default: mongoose } = require('mongoose')
+import { Venue } from '../config/models/venues'
+import { Gig } from '../config/models/gigs'
+import mongoose from 'mongoose'
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/geocode/json'
 
 // Create new
@@ -105,7 +105,7 @@ async function deleteVenue(req, res) {
     }
 }
 
-module.exports = {
+export const venues = {
     new: createNew,
     getOne: getOne,
     getAll: getAll,
