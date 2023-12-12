@@ -215,11 +215,6 @@ async function getUpcoming(req, res) {
         const month = new Date(today.valueOf() + (30 * oneDay))
         const year = new Date(today.valueOf() + (365 * oneDay))
         const newYear = new Date(today.valueOf() + (80 * oneDay))
-        console.log(today)
-        console.log(thisWeek);
-        console.log(nextWeek);
-        console.log(month);
-        console.log(year);
 
         // Get gigs gte to today, then put them in buckets
         const data = await Gig.aggregate([
