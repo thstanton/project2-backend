@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const agencySchema = new Schema({
     name: String,
     initials: String,
-    email: String
+    email: String,
+    userId: Schema.Types.ObjectId
 }, {
     timestamps: true
 })

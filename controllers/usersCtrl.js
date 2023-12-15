@@ -1,4 +1,5 @@
-import { User } from '../config/models/users'
+import { User } from '../config/models/users.js'
+import jwt from 'jsonwebtoken'
 
 // ? User
 async function userController(req, res) {
@@ -31,4 +32,12 @@ async function userController(req, res) {
 
 export const users = {
     controller: userController
+}
+
+export async function getUser(token) {
+    const payload = token.split(' ')[1]
+    const decodedToken = jwt.decode(payload)
+    const email = decodedToken.email
+    const userId = await User.findOne({ email: email }, '_id')
+    return userId
 }

@@ -22,7 +22,8 @@ const gigSchema = new Schema({
         name: String,
         desc: String
     }],
-    status: String
+    status: String,
+    userId: Schema.Types.ObjectId
 }, {
     timestamps: true
 })

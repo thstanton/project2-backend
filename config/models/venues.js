@@ -4,7 +4,12 @@ const Schema = mongoose.Schema
 const venueSchema = new Schema({
     name: String,
     address: String,
-    postcode: String
+    postcode: String,
+    userId: Schema.Types.ObjectId,
+    geoData: {
+        lat: Number,
+        lng: Number
+    }
 }, {
     timestamps: true
 })

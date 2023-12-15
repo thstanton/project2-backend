@@ -1,14 +1,18 @@
-import { Venue } from '../config/models/venues'
-import { Gig } from '../config/models/gigs'
+import { Venue } from '../config/models/venues.js'
+import { Gig } from '../config/models/gigs.js'
 import mongoose from 'mongoose'
+import { getUser } from './usersCtrl.js'
 const GOOGLE_API = 'https://maps.googleapis.com/maps/api/geocode/json'
 
 // Create new
 async function createNew(req, res) {
     try {
-        const newVenue = new Venue(req.body)
-        const venueExists = await Venue.findOne( { name: newVenue.name } )
+        const userId = new mongoose.Types.ObjectId(await getUser(req.body.user))
+        const newVenue = new Venue(req.body.venue)
+        const venueExists = await Venue.findOne( { name: newVenue.name, userId: userId } )
         if (venueExists) return res.status(400).json({ error: 'Cannot add venue: Venue already exists' })
+        newVenue.geoData = await getLocationData(newVenue.postcode)
+        newVenue.userId = userId
         let save = await newVenue.save()
         console.log(save)
         return res.status(201).json(save)
@@ -21,8 +25,9 @@ async function createNew(req, res) {
 // Get all
 async function getAll(req, res) {
     try {
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const venues = await Venue
-            .find({}, { _id: 1, name: 1 })
+            .find({ userId: userId }, { _id: 1, name: 1 })
             .sort('name')
             .lean()
         return res.status(200).json(venues)
@@ -45,15 +50,11 @@ async function getLocationData(venue) {
 // Get all location data
 async function getAllLocationData(req, res) {
     try {
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const venues = await Venue
-            .find({}, { name: 1, postcode: 1 })
+            .find({ userId: userId }, { geoData: 1 })
             .lean()
-        let data = []
-        for (let i = 0; i < venues.length; i++) {
-            const venueLocation = await getLocationData(venues[i])
-            data.push(venueLocation)
-        }
-        return res.status(200).json(data)
+        return res.status(200).json(venues)
     } catch (err) {
         console.error(err)
         return res.status(400).json({ message: 'Something has gone wrong' })
@@ -69,10 +70,7 @@ async function getOne(req, res) {
             .find( { venueId: id } )
             .sort('-date')
             .lean()
-        const geoDataResponse = await fetch(`${GOOGLE_API}?address=${venue.postcode}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
-        const geoData = await geoDataResponse.json()
-        const latLong = geoData.results[0].geometry.location
-        const data = { venue: venue, gigs: gigs, locationData: latLong }
+        const data = { venue: venue, gigs: gigs }
         return res.status(200).json(data)
     } catch (err) {
         console.error(err)

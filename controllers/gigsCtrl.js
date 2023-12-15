@@ -1,12 +1,15 @@
-import { Gig } from '../config/models/gigs'
-import { Agency } from '../config/models/agencies'
-import { Venue } from '../config/models/venues'
+import { Gig } from '../config/models/gigs.js'
+import { Agency } from '../config/models/agencies.js'
+import { Venue } from '../config/models/venues.js'
+import { User } from '../config/models/users.js'
 import mongoose from 'mongoose'
+import { getUser } from './usersCtrl.js'
 
 // Get all gigs
 async function getAll(req, res) {
-    try { 
-        const allGigs = await Gig.find({})
+    try {
+        const userId = await getUser(req.headers.authorization)
+        const allGigs = await Gig.find({ userId: userId })
         .sort('-date')
         .lean()
         return res.status(200).json(allGigs)
@@ -34,9 +37,10 @@ async function filterVenue(req, res) {
 // Get gigs by status
 async function filterStatus(req, res) {
     try {
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const status = req.params.status
         const gigs = await Gig
-            .find( { status: status } )
+            .find( { status: status, userId: userId } )
             .sort('-date')
             .lean()
         return res.status(200).json(gigs)
@@ -77,8 +81,10 @@ async function getAgencyStats(req, res) {
                 }}
             ])             
         } else {
+            const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
             // Get aggregate agency data
             const data = await Gig.aggregate([
+                { $match: { userId: userId }},
                 { $group: { 
                     _id: "$agencyId", 
                     totalEarnings: { $sum: "$fee" },
@@ -88,7 +94,7 @@ async function getAgencyStats(req, res) {
             // Associate Agency name with Id
             const agencyNames = await Agency.find({}, { name: 1 }).lean()
             data.forEach((agency) => {
-                for (item of agencyNames) {
+                for (let item of agencyNames) {
                     console.log(item._id.toString())
                     if (item._id.toString() === agency._id.toString()) agency.name = item.name
                 }
@@ -144,14 +150,16 @@ async function getOne(req, res) {
 async function createNew(req, res) {
     try {
         // Map form content to model 
-        const newGig = new Gig(req.body)
+        const newGig = new Gig(req.body.gig)
         // Add agency and venue Ids
         let agencyId = await Agency.findOne({ name: newGig.agencyName }, '_id')
-        let venueId = await Venue.findOne({ name: newGig.venueName}, '_id')
+        let venueId = await Venue.findOne({ name: newGig.venueName }, '_id')
+        let userId = await User.findOne({ email: req.body.user }, '_id')
         newGig.agencyId = agencyId
         newGig.venueId = venueId
+        newGig.userId = userId
         // Save
-        let save = await newGig.save()
+        await newGig.save()
         return res.status(201).json({ id: newGig._id })
     } catch (error) {
         console.error(error.message)
@@ -187,9 +195,10 @@ async function updateGig(req, res) {
 // Agency and Venue Names for New Gig Form
 async function populateGigForm(req, res) {
     try {
-        const agencyNames = await Agency.find({}, { _id: 0, name: 1 }).lean()
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
+        const agencyNames = await Agency.find({ userId: userId }, { _id: 0, name: 1 }).lean()
         const agencyNamesArr = agencyNames.map(agency => agency.name)
-        const venueNames = await Venue.find({}, { _id: 0, name: 1 }).lean()
+        const venueNames = await Venue.find({ userId: userId }, { _id: 0, name: 1 }).lean()
         const venueNamesArr = venueNames.map(venue => venue.name)
         const data = { venues: venueNamesArr, agencies: agencyNamesArr }
         if (req.params.id) {
@@ -216,8 +225,12 @@ async function getUpcoming(req, res) {
         const year = new Date(today.valueOf() + (365 * oneDay))
         const newYear = new Date(today.valueOf() + (80 * oneDay))
 
+        // Establish user
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
+
         // Get gigs gte to today, then put them in buckets
         const data = await Gig.aggregate([
+            { $match: { userId: userId }},
             { $match: { date: { $gte: today }}},
             { $bucket: {
                 groupBy: "$date",
@@ -231,6 +244,7 @@ async function getUpcoming(req, res) {
                 }
             }}
         ])
+        console.log(data)
         return res.status(200).json(data)
     } catch (error) {
         return res.status(400).json({ message: 'Something went wrong'})

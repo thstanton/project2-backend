@@ -1,12 +1,14 @@
-import { Agency } from '../config/models/agencies'
-import { Gig } from '../config/models/gigs'
+import { Agency } from '../config/models/agencies.js'
+import { Gig } from '../config/models/gigs.js'
+import { getUser } from './usersCtrl.js'
 import mongoose from 'mongoose'
 
 // Get all
 async function getAll(req, res) {
     try {
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const agencies = await Agency
-            .find({}, { _id: 1, name: 1 })
+            .find({ userId: userId }, { _id: 1, name: 1 })
             .sort('name')
             .lean()
         return res.status(200).json(agencies)
@@ -55,13 +57,15 @@ async function getOne(req, res) {
 // Create new agency
 async function createNew(req, res) {
     try {
-        const newAgency = new Agency(req.body)
-        const agencyExists = await Agency.findOne( { name: newAgency.name} )
+        const newAgency = new Agency(req.body.agency)
+        const userId = new mongoose.Types.ObjectId(await getUser(req.body.user))
+        const agencyExists = await Agency.findOne( { name: newAgency.name, userId: userId } )
         if (agencyExists) { 
             return res.status(400).json({ error: 'Cannot add agent: Agent already exists' })
         }
         newAgency.initials = agencyInitials(newAgency.name)
-        let save = await newAgency.save()
+        newAgency.userId = userId
+        await newAgency.save()
         return res.status(201).json(save)
     } catch (err) {
         console.error(err.message)
