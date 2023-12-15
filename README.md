@@ -526,6 +526,8 @@ In the function which separates gigs into time ‘buckets’ for the upcoming gi
 
 At present, data can be read, created, updated and deleted by any user and is not specific to that user. I intend to change this to authorise these functions only to the user that created them.
 
+Completed - 15.12.23
+
 **Further ways to display the data and make dashboard more useful**
 
 I want to create further useful aggregations of data, such as showing which requests are most popular, and calculating which gigs are most lucrative compared with the amount of time spent playing.
@@ -537,3 +539,5 @@ Adding a search or filter functions to the All Gigs page would make this feature
 **Improve efficiency of map**
 
 The Geodata API does not allow requests of more than one postcode at a time. Therefore, at present the map on the dashboard page has to make a separate request for each postcode in the back end when the page mounts, before sending through the coordinates to display on the map. This makes the rendering of the map quite sluggish, and it would make more sense to fetch this data when the venue is created and store it in the database.
+
+Completed - 15.12.23
