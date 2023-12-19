@@ -1,7 +1,6 @@
 import { Gig } from '../config/models/gigs.js'
 import { Agency } from '../config/models/agencies.js'
 import { Venue } from '../config/models/venues.js'
-import { User } from '../config/models/users.js'
 import mongoose from 'mongoose'
 import { getUser } from './usersCtrl.js'
 
@@ -152,9 +151,9 @@ async function createNew(req, res) {
         // Map form content to model 
         const newGig = new Gig(req.body.gig)
         // Add agency and venue Ids
-        let agencyId = await Agency.findOne({ name: newGig.agencyName }, '_id')
-        let venueId = await Venue.findOne({ name: newGig.venueName }, '_id')
-        let userId = await User.findOne({ email: req.body.user }, '_id')
+        const agencyId = await Agency.findOne({ name: newGig.agencyName }, '_id')
+        const venueId = await Venue.findOne({ name: newGig.venueName }, '_id')
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         newGig.agencyId = agencyId
         newGig.venueId = venueId
         newGig.userId = userId
