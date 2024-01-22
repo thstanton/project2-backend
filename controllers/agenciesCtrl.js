@@ -58,7 +58,7 @@ async function getOne(req, res) {
 async function createNew(req, res) {
     try {
         const newAgency = new Agency(req.body.agency)
-        const userId = new mongoose.Types.ObjectId(await getUser(req.body.user))
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const agencyExists = await Agency.findOne( { name: newAgency.name, userId: userId } )
         if (agencyExists) { 
             return res.status(400).json({ error: 'Cannot add agent: Agent already exists' })
@@ -66,7 +66,7 @@ async function createNew(req, res) {
         newAgency.initials = agencyInitials(newAgency.name)
         newAgency.userId = userId
         await newAgency.save()
-        return res.status(201).json(save)
+        return res.status(201).json(newAgency)
     } catch (err) {
         console.error(err.message)
         return res.status(400).json({ error: 'Something went wrong'})

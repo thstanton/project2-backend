@@ -7,7 +7,7 @@ const GOOGLE_API = 'https://maps.googleapis.com/maps/api/geocode/json'
 // Create new
 async function createNew(req, res) {
     try {
-        const userId = new mongoose.Types.ObjectId(await getUser(req.body.user))
+        const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const newVenue = new Venue(req.body.venue)
         const venueExists = await Venue.findOne( { name: newVenue.name, userId: userId } )
         if (venueExists) return res.status(400).json({ error: 'Cannot add venue: Venue already exists' })
@@ -37,9 +37,10 @@ async function getAll(req, res) {
     }
 }
 
-async function getLocationData(venue) {
+async function getLocationData(postcode) {
     try {
-        const locationData = await fetch(`${GOOGLE_API}?address=${venue.postcode}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
+        const address = encodeURIComponent(postcode)
+        const locationData = await fetch(`${GOOGLE_API}?address=${address}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
         const json = await locationData.json()
         return json.results[0].geometry.location
     } catch (error) {
@@ -83,6 +84,8 @@ async function updateVenue(req, res) {
     try {
         const id = req.params.id
         const body = req.body
+        body.geoData = await getLocationData(body.postcode)
+        console.log(body)
         const updated = await Venue.findByIdAndUpdate(id, body)
         return res.status(201).json(updated)
     } catch (error) {
