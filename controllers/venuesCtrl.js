@@ -13,9 +13,9 @@ async function createNew(req, res) {
         if (venueExists) return res.status(400).json({ error: 'Cannot add venue: Venue already exists' })
         newVenue.geoData = await getLocationData(newVenue.postcode)
         newVenue.userId = userId
-        let save = await newVenue.save()
-        console.log(save)
-        return res.status(201).json(save)
+        await newVenue.save()
+        console.log(newVenue)
+        return res.status(201).json(newVenue)
     } catch (err) {
         console.error(err.message)
         return res.status(400).json({ error: 'Something went wrong'})
@@ -42,6 +42,7 @@ async function getLocationData(postcode) {
         const address = encodeURIComponent(postcode)
         const locationData = await fetch(`${GOOGLE_API}?address=${address}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
         const json = await locationData.json()
+        console.log(json)
         return json.results[0].geometry.location
     } catch (error) {
         console.error(error)
@@ -53,8 +54,9 @@ async function getAllLocationData(req, res) {
     try {
         const userId = new mongoose.Types.ObjectId(await getUser(req.headers.authorization))
         const venues = await Venue
-            .find({ userId: userId }, { geoData: 1 })
+            .find({ userId: userId })
             .lean()
+        console.log(venues)
         return res.status(200).json(venues)
     } catch (err) {
         console.error(err)

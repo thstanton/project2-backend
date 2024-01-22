@@ -65,6 +65,7 @@ async function createNew(req, res) {
         }
         newAgency.initials = agencyInitials(newAgency.name)
         newAgency.userId = userId
+        console.log(newAgency)
         await newAgency.save()
         return res.status(201).json(newAgency)
     } catch (err) {
