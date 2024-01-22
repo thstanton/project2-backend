@@ -39,8 +39,8 @@ async function getAll(req, res) {
 
 async function getLocationData(postcode) {
     try {
-        const encodedPostcode = encodeURIComponent(postcode)
-        const locationData = await fetch(`${GOOGLE_API}?address=${encodedPostcode}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
+        const address = encodeURIComponent(postcode)
+        const locationData = await fetch(`${GOOGLE_API}?address=${address}&key=${process.env.GOOGLE_MAPS_API_KEY}`)
         const json = await locationData.json()
         console.log(json)
         return json.results[0].geometry.location
@@ -86,6 +86,8 @@ async function updateVenue(req, res) {
     try {
         const id = req.params.id
         const body = req.body
+        body.geoData = await getLocationData(body.postcode)
+        console.log(body)
         const updated = await Venue.findByIdAndUpdate(id, body)
         return res.status(201).json(updated)
     } catch (error) {
